@@ -11,6 +11,7 @@ import { getRouteDefs as getExperimentTrackingRouteDefs } from './experiment-tra
 import { getRouteDefs as getModelRegistryRouteDefs } from './model-registry/route-defs';
 import { getRouteDefs as getCommonRouteDefs } from './common/route-defs';
 import { useInitializeExperimentRunColors } from './experiment-tracking/components/experiment-page/hooks/useExperimentRunColor';
+import { getLabelingRouteDefs } from './labels/route-defs';
 
 /**
  * This is the MLflow default entry/landing route.
@@ -33,7 +34,13 @@ export const MlflowRouter = ({
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const routes = useMemo(
-    () => [...getExperimentTrackingRouteDefs(), ...getModelRegistryRouteDefs(), landingRoute, ...getCommonRouteDefs()],
+    () => [
+      ...getExperimentTrackingRouteDefs(),
+      ...getModelRegistryRouteDefs(),
+      ...getLabelingRouteDefs(),
+      landingRoute,
+      ...getCommonRouteDefs(),
+    ],
     [],
   );
   return (
