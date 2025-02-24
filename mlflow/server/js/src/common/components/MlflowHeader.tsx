@@ -4,6 +4,7 @@ import logo from '../static/home-logo.png';
 import { ModelRegistryRoutes } from '../../model-registry/routes';
 import { HomePageDocsUrl, Version } from '../constants';
 import { DarkThemeSwitch } from '@mlflow/mlflow/src/common/components/DarkThemeSwitch';
+import { LabelingRoutes } from '../../labels/routes';
 
 const colors = {
   headerBg: '#0b3574',
@@ -17,6 +18,7 @@ const classNames = {
 
 const isExperimentsActive = (location: Location) => matchPath('/experiments/*', location.pathname);
 const isModelsActive = (location: Location) => matchPath('/models/*', location.pathname);
+const isLabelsActive = (location: Location) => matchPath('/labels/*', location.pathname);
 
 export const MlflowHeader = ({
   isDarkTheme = false,
@@ -86,6 +88,12 @@ export const MlflowHeader = ({
           style={isModelsActive(location) ? classNames.activeNavLink : undefined}
         >
           Models
+        </Link>
+        <Link
+          to={LabelingRoutes.labelListPageRoute}
+          style={isLabelsActive(location) ? classNames.activeNavLink : undefined}
+        >
+          Labels
         </Link>
       </div>
       <div css={{ flex: 1 }} />
