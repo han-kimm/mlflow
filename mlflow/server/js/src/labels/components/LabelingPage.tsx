@@ -1,66 +1,76 @@
-import { Typography } from '@databricks/design-system';
+import { Table, TableCell, TableHeader, TableRow, Typography } from '@databricks/design-system';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { PageContainer } from '../../common/components/PageContainer';
 import { ScrollablePageWrapper } from '../../common/components/ScrollablePageWrapper';
 import ErrorUtils from '../../common/utils/ErrorUtils';
+import { Link } from '../../common/utils/RoutingUtils';
 import { withErrorBoundary } from '../../common/utils/withErrorBoundary';
 import { useExperimentAgGridTableStyles } from '../../experiment-tracking/components/experiment-page/components/runs/ExperimentViewRunsTable';
 import { ModelListFilters } from '../../model-registry/components/model-list/ModelListFilters';
 import { PageHeader } from '../../shared/building_blocks/PageHeader';
 import { Spacer } from '../../shared/building_blocks/Spacer';
-import { MLFlowAgGridLoader } from '../../common/components/ag-grid/AgGridLoader';
-import { ColDef } from '@ag-grid-community/core';
-import { Link } from '../../common/utils/RoutingUtils';
+
+const data = [
+  { id: '1', name: 'Model1', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
+  { id: '2', name: 'Model2', status: 'Deployed', accuracy: '0.34', f1: '0.78' },
+  { id: '3', name: 'Model3', status: 'Deployed', accuracy: '0.90', f1: '0.78' },
+  { id: '4', name: 'Model4', status: 'Deployed', accuracy: '0.94', f1: '0.78' },
+  { id: '5', name: 'Model5', status: 'Deployed', accuracy: '0.95', f1: '0.78' },
+  { id: '6', name: 'Model6', status: 'Deployed', accuracy: '0.88', f1: '0.78' },
+  { id: '7', name: 'Model7', status: 'Deployed', accuracy: '0.95', f1: '0.78' },
+  { id: '8', name: 'Model8', status: 'Deployed', accuracy: '0.82', f1: '0.78' },
+  { id: '9', name: 'Model9', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
+  { id: '10', name: 'Model10', status: 'Deployed', accuracy: '0.33', f1: '0.78' },
+];
+
+const columns: ColumnDef<LabelingEntity>[] = [
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: 'Model Name',
+    cell: ({ getValue }) => <Link to={`/labels/${getValue()}`}>{getValue()}</Link>,
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+  },
+  {
+    accessorKey: 'accuracy',
+    header: 'Accuracy',
+  },
+  {
+    accessorKey: 'f1',
+    header: 'F1',
+  },
+];
+
+interface LabelingEntity {
+  id: string;
+  name: string;
+  status: string;
+  accuracy: string;
+  f1: string;
+}
 
 function Labeling() {
   // prop destruction
   // lib hooks
   const gridStyles = useExperimentAgGridTableStyles();
 
+  const table = useReactTable<LabelingEntity>({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getRowId: ({ id }) => id,
+  });
+
   // state, ref hooks
   const [searchInput, setSearchInput] = useState('');
 
   // query hooks
   // calculated values
-  const data = [
-    { name: 'Model1', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model2', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model3', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model4', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model5', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model6', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model7', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model8', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model9', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-    { name: 'Model10', status: 'Deployed', accuracy: '0.78', f1: '0.78' },
-  ].filter((model) => model.name.toLowerCase().includes(searchInput.toLowerCase()));
-
-  const columns: ColDef<typeof data>[] = [
-    {
-      field: 'name',
-      headerName: 'Model Name',
-      sortable: true,
-      cellRenderer: ({ value }: any) => <Link to={`/labels/${value}`}>{value}</Link>,
-    },
-    {
-      field: 'status',
-      headerName: 'Deploy Status',
-      sortable: true,
-    },
-    {
-      field: 'accuracy',
-      headerName: 'Accuracy',
-      width: 120,
-      sortable: true,
-    },
-    {
-      field: 'f1',
-      headerName: 'F1',
-      width: 120,
-      sortable: true,
-    },
-  ];
 
   // effects
   // handlers
@@ -87,9 +97,31 @@ function Labeling() {
           isFiltered={Boolean(searchInput)}
         />
 
-        <div className="ag-theme-balham ag-grid-sticky" css={[gridStyles, { display: 'block', height: '100%' }]}>
+        <Table>
+          <TableRow isHeader>
+            {table.getLeafHeaders().map((header) => (
+              <TableHeader
+                componentId="codegen_mlflow_app_src_model-registry_components_model-list_modellisttable.tsx_412"
+                key={header.id}
+                multiline
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHeader>
+            ))}
+          </TableRow>
+          {table.getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getAllCells().map((cell) => (
+                <TableCell multiline key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </Table>
+        {/* <div className="ag-theme-balham ag-grid-sticky" css={[gridStyles, { display: 'block', height: '100%' }]}>
           <MLFlowAgGridLoader columnDefs={columns} rowData={data} />
-        </div>
+        </div> */}
       </PageContainer>
     </ScrollablePageWrapper>
   );
