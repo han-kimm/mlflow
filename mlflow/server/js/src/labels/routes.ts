@@ -1,9 +1,12 @@
-import { createMLflowRoutePath } from '../common/utils/RoutingUtils';
+import { createMLflowRoutePath, generatePath } from '../common/utils/RoutingUtils';
 
 // Route path definitions (used in defining route elements)
 export class LabelingRoutePaths {
   static get labelListPage() {
     return createMLflowRoutePath('/labels');
+  }
+  static get labelModelPage() {
+    return createMLflowRoutePath('/labels/:modelName');
   }
 }
 
@@ -11,6 +14,11 @@ export class LabelingRoutePaths {
 export class LabelingRoutes {
   static get labelListPageRoute() {
     return LabelingRoutePaths.labelListPage;
+  }
+  static labelModelPageRoute(modelName: string) {
+    return generatePath(LabelingRoutePaths.labelModelPage, {
+      modelName: encodeURIComponent(modelName),
+    });
   }
 }
 
