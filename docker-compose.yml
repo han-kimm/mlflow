@@ -1,0 +1,44 @@
+version: "3.8"
+
+volumes:
+  localstack-vol:
+
+services:
+  db:
+    image: 512973208661.dkr.ecr.us-west-2.amazonaws.com/haulla-test-db:2024.12.13
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+    ports:
+      - "3306:3306"
+  aws:
+    image: localstack/localstack
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - AWS_ACCESS_KEY_ID=aws
+      - AWS_SECRET_ACCESS_KEY=aws
+      - DEFAULT_REGION=us-west-2
+    ports:
+      - "4566:4566"
+    volumes:
+      - "./test/docker-entrypoint-initaws.d:/etc/localstack/init/ready.d"
+  ml:
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    environment:
+      - PORT=5050
+      - DB_NAME=mlflow
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=1234
+      - MLFLOW_S3_ENDPOINT_URL=http://aws:4566
+      - BUCKET_NAME=mlflow
+      - AWS_ACCESS_KEY_ID=aws # 아무 값이나 환경변수로 지정하기만 하면 ok
+      - AWS_SECRET_ACCESS_KEY=aws # 아무 값이나 환경변수로 지정하기만 하면 ok
+    ports:
+      - "5050:5050"
+    depends_on:
+      - db
+      - aws
